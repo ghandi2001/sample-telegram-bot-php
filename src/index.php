@@ -1,12 +1,21 @@
 <?php
 
-if (!file_exists("telebot.php")) {
-	copy("https://raw.githubusercontent.com/hctilg/telebot/v2.0/index.php", "telebot.php");
-}
+require 'lib/TeleBot.php';
+require '../vendor/autoload.php';
 
+$variables = parse_ini_file('../.env');
 
-require('telebot.php');
+$bot = new Telebot($variables['TOKEN']);
 
-$bot = new Telebot('TOKEN');
+$bot->on('text', function ($data) use ($bot) {
+    $chat_id = $data['chat']['id'];
+    $text = $data['text'];
+    if (in_array($text, require 'codes.php')){
+        $bot->sendMessage(['chat_id' => $chat_id, 'text' => " کد تراکنش $text معتبر است"]);
+    }else{
+        $bot->sendMessage(['chat_id' => $chat_id, 'text' => "پیام نا معتبر"]);
+    }
 
+});
 
+$bot->run();
